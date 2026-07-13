@@ -352,7 +352,7 @@ export default function App() {
         .catch(err => {
           console.warn('Background sync failed:', err);
         });
-    }, 45000); // Poll every 45s to stay fresh without exceeding Google API limits
+    }, 60 * 60 * 1000); // Poll every 1 hour to stay fresh and optimize resources
     return () => clearInterval(interval);
   }, [employees]);
 
@@ -638,16 +638,13 @@ export default function App() {
                       <Users className="text-bronze" size={28} />
                       <span>Визитные карточки Magma Home</span>
                     </h1>
-                    <p className="text-gray-400 mt-2 text-sm max-w-xl">
-                      Управляйте цифровой идентичностью сотрудников. Персональные мобильные лендинги синхронизируются с базой данных в режиме реального времени.
-                    </p>
                   </div>
 
                   {/* Sync status widget */}
                   <div className="bg-black/30 p-3 rounded-xl border border-gray-800/80 text-xs flex flex-wrap items-center gap-4">
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                      <span className="text-gray-400 font-medium">Автосинхронизация: каждые 30 сек</span>
+                      <span className="text-gray-400 font-medium">Автосинхронизация: каждый час</span>
                     </div>
                     <span className="text-gray-600 hidden sm:inline">|</span>
                     <span className="text-gray-400">
