@@ -54,9 +54,6 @@ export default function Header({ activeTab, setActiveTab, onLogoClick }: HeaderP
               </g>
             </svg>
           </div>
-          <span className="hidden xl:inline text-gray-500 text-[10px] tracking-wider uppercase border-l border-gray-800 pl-4 font-mono">
-            Digital Identity Platform
-          </span>
         </div>
 
         {/* Tab Navigation */}
