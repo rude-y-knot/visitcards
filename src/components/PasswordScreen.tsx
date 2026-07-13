@@ -12,23 +12,42 @@ export default function PasswordScreen({ onSuccess }: PasswordScreenProps) {
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const sha256 = async (text: string): Promise<string> => {
+    const msgBuffer = new TextEncoder().encode(text);
+    const hashBuffer = await window.crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'magma' || password.trim().toLowerCase() === 'magma') {
-      setIsLoading(true);
-      setError(false);
-      setTimeout(() => {
+    setIsLoading(true);
+    setError(false);
+
+    try {
+      const enteredHash = await sha256(password);
+      // SHA-256 hash of "Magma14$"
+      const targetHash = '94875e3a4a35fcaea1134efa5d4c05d7ea359712ef641a8ac0568037fa0f3b5b';
+
+      if (enteredHash === targetHash) {
+        setTimeout(() => {
+          setIsLoading(false);
+          sessionStorage.setItem('magma_auth', 'true');
+          onSuccess();
+        }, 800);
+      } else {
         setIsLoading(false);
-        sessionStorage.setItem('magma_auth', 'true');
-        onSuccess();
-      }, 800);
-    } else {
-      setError(true);
-      setPassword('');
-      // Vibrate if supported
-      if ('vibrate' in navigator) {
-        navigator.vibrate(100);
+        setError(true);
+        setPassword('');
+        // Vibrate if supported
+        if ('vibrate' in navigator) {
+          navigator.vibrate(100);
+        }
       }
+    } catch (err) {
+      console.error('Password hashing failed:', err);
+      setIsLoading(false);
+      setError(true);
     }
   };
 
@@ -128,16 +147,7 @@ export default function PasswordScreen({ onSuccess }: PasswordScreenProps) {
           </button>
         </form>
 
-        {/* Info Box / Credentials Help */}
-        <div className="mt-8 pt-6 border-t border-gray-900 flex items-start gap-3 bg-black/15 p-4 rounded-xl border border-gray-800/40">
-          <ShieldCheck className="text-green-500 flex-shrink-0 mt-0.5" size={16} />
-          <div className="space-y-1">
-            <h4 className="text-xs font-bold text-gray-200">Пароль по умолчанию</h4>
-            <p className="text-[11px] text-gray-400 leading-relaxed">
-              Используйте пароль <strong className="text-green-400 font-mono bg-green-500/10 px-1 py-0.5 rounded border border-green-500/20 text-xs">magma</strong> для тестирования. Свободный доступ к отдельным визиткам при этом сохраняется по прямым ссылкам.
-            </p>
-          </div>
-        </div>
+
       </motion.div>
     </div>
   );
