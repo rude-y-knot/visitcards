@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Employee } from '../types';
 import { 
   Phone, Mail, Globe, MapPin, ExternalLink, Download, Copy, Check, Send, 
-  MessageSquare, ShieldCheck
+  MessageSquare, ShieldCheck, QrCode
 } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
+import QRCode from 'react-qr-code';
 
 interface CardViewProps {
   employee: Employee;
@@ -15,11 +16,31 @@ interface CardViewProps {
 
 export default function CardView({ employee, onDownloadVCF, onCopyLink, standalone = true }: CardViewProps) {
   const [copied, setCopied] = useState(false);
+  const [showQr, setShowQr] = useState(false);
+  const qrContainerRef = useRef<HTMLDivElement>(null);
 
   const handleCopy = () => {
     onCopyLink(employee);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const cardUrl = `${window.location.origin}${window.location.pathname}?card=${employee.id}`;
+
+  const downloadSVG = () => {
+    const container = qrContainerRef.current;
+    if (!container) return;
+    const svg = container.querySelector('svg');
+    if (!svg) return;
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+    const svgUrl = URL.createObjectURL(svgBlob);
+    const downloadLink = document.createElement('a');
+    downloadLink.href = svgUrl;
+    downloadLink.download = `${employee.lastName}_${employee.firstName}_qr.svg`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
   };
 
   return (
@@ -221,22 +242,60 @@ export default function CardView({ employee, onDownloadVCF, onCopyLink, standalo
               <span>Сохранить контакт (VCF)</span>
             </button>
 
-            <button
-              onClick={handleCopy}
-              className="w-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-gray-300 py-2.5 px-4 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
-            >
-              {copied ? (
-                <>
-                  <Check size={14} className="text-green-400" />
-                  <span className="text-green-400">Ссылка скопирована</span>
-                </>
-              ) : (
-                <>
-                  <Copy size={14} />
-                  <span>Поделиться визиткой</span>
-                </>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={handleCopy}
+                className="w-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-gray-300 py-2.5 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+              >
+                {copied ? (
+                  <>
+                    <Check size={14} className="text-green-400" />
+                    <span className="text-green-400">Скопировано</span>
+                  </>
+                ) : (
+                  <>
+                    <Copy size={14} />
+                    <span>Поделиться</span>
+                  </>
+                )}
+              </button>
+
+              <button
+                onClick={() => setShowQr(!showQr)}
+                className="w-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-gray-300 py-2.5 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
+              >
+                <QrCode size={14} />
+                <span>QR-код</span>
+              </button>
+            </div>
+
+            <AnimatePresence>
+              {showQr && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="bg-[#121217] p-5 rounded-xl border border-gray-800/80 flex flex-col items-center space-y-4 shadow-inner overflow-hidden"
+                >
+                  <div ref={qrContainerRef} className="p-3 bg-white rounded-lg inline-block shadow-lg">
+                    <QRCode
+                      value={cardUrl}
+                      size={140}
+                      style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                      viewBox={`0 0 256 256`}
+                    />
+                  </div>
+                  <button
+                    onClick={downloadSVG}
+                    className="flex items-center gap-1.5 text-xs text-bronze hover:text-bronze/80 transition-colors font-medium border border-bronze/30 px-3 py-1.5 rounded-lg bg-bronze/5 hover:bg-bronze/10"
+                  >
+                    <Download size={13} />
+                    <span>Скачать QR-код (SVG)</span>
+                  </button>
+                </motion.div>
               )}
-            </button>
+            </AnimatePresence>
 
             <div className="text-center text-[9px] text-gray-600 font-mono pt-2">
               MAGMA HOME © {new Date().getFullYear()} • DIGITAL BUSINESS CARD
