@@ -1,0 +1,6 @@
+{
+  "name": "Magma Home Business Cards",
+  "description": "Электронные визитные карточки сотрудников Magma Home с автосинхронизацией из Google Sheets и экспортом vCard контактов.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
