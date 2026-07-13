@@ -157,6 +157,18 @@ export default function CardView({ employee, onDownloadVCF, onCopyLink, standalo
                     <span className="text-xs text-green-500/80 font-mono">+{employee.whatsapp}</span>
                   </a>
                 )}
+
+                {employee.phone && (
+                  <div className="flex items-center justify-between px-4 py-3 bg-[#111119] rounded-xl border border-amber-950/20 text-amber-400 text-xs select-none">
+                    <span className="flex items-center space-x-2.5">
+                      <MessageSquare size={14} className="text-amber-400" />
+                      <span className="font-medium text-gray-300">Мессенджер Макс</span>
+                    </span>
+                    <span className="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/20 font-medium">
+                      есть на этом номере
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Physical Details / Company Coordinates */}
