@@ -12,7 +12,8 @@ export const INITIAL_SHEET_DATA: Employee[] = [
     address: 'Санкт-Петербург, г. Колпино, ул. Ленина д. 1',
     department: 'Маркетинг',
     telegram: 'yur_stan', 
-    whatsapp: '79214388883' 
+    whatsapp: '79214388883',
+    maxMessenger: true
   },
   { 
     id: '2', 
@@ -25,7 +26,8 @@ export const INITIAL_SHEET_DATA: Employee[] = [
     address: 'Санкт-Петербург, г. Колпино, ул. Ленина д. 1',
     department: 'Дизайн',
     telegram: 'nastya_magma', 
-    whatsapp: '79210001122' 
+    whatsapp: '79210001122',
+    maxMessenger: true
   },
   { 
     id: '3', 
@@ -38,7 +40,8 @@ export const INITIAL_SHEET_DATA: Employee[] = [
     address: 'Санкт-Петербург, г. Колпино, ул. Ленина д. 1',
     department: 'Производство',
     telegram: 'mikhail_stone', 
-    whatsapp: '79213334455' 
+    whatsapp: '79213334455',
+    maxMessenger: false
   }
 ];
 

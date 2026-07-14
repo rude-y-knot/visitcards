@@ -179,7 +179,7 @@ export default function CardView({ employee, onDownloadVCF, onCopyLink, standalo
                   </a>
                 )}
 
-                {employee.phone && (
+                {employee.phone && employee.maxMessenger !== false && (
                   <div className="flex items-center justify-between px-4 py-3 bg-[#111119] rounded-xl border border-amber-950/20 text-amber-400 text-xs select-none">
                     <span className="flex items-center space-x-2.5">
                       <MessageSquare size={14} className="text-amber-400" />

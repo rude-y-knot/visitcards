@@ -10,4 +10,5 @@ export interface Employee {
   department: string;
   telegram?: string;
   whatsapp?: string;
+  maxMessenger?: boolean;
 }

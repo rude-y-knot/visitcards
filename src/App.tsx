@@ -93,6 +93,7 @@ function mapCsvToEmployees(rows: string[][]): Employee[] {
     address: 7,
     telegram: -1,
     whatsapp: -1,
+    maxMessenger: -1,
   };
   
   let startIndex = 0;
@@ -117,6 +118,7 @@ function mapCsvToEmployees(rows: string[][]): Employee[] {
       else if (header.includes('адрес')) indices.address = index;
       else if (header.includes('telegram') || header.includes('телеграм')) indices.telegram = index;
       else if (header.includes('whatsapp') || header.includes('ватсап')) indices.whatsapp = index;
+      else if (header.includes('макс') || header.includes('max')) indices.maxMessenger = index;
     });
     startIndex = 1;
   }
@@ -161,6 +163,11 @@ function mapCsvToEmployees(rows: string[][]): Employee[] {
     const phoneVal = getValue(indices.phone);
     const whatsappVal = indices.whatsapp !== -1 ? getValue(indices.whatsapp) : phoneVal.replace(/[^0-9]/g, '');
 
+    const rawMaxMessenger = indices.maxMessenger !== -1 ? getValue(indices.maxMessenger).toLowerCase() : '';
+    const hasMaxMessenger = indices.maxMessenger !== -1
+      ? (rawMaxMessenger !== '' && rawMaxMessenger !== '0' && rawMaxMessenger !== 'нет' && rawMaxMessenger !== 'no' && rawMaxMessenger !== 'false' && rawMaxMessenger !== '-')
+      : true;
+
     // Transliterate firstName and lastName for slug-based ID
     const transliterate = (text: string): string => {
       const rus = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
@@ -191,7 +198,8 @@ function mapCsvToEmployees(rows: string[][]): Employee[] {
       address: getValue(indices.address, 'Санкт-Петербург, г. Колпино, ул. Ленина д. 1'),
       department: dept,
       telegram: getValue(indices.telegram),
-      whatsapp: whatsappVal || undefined
+      whatsapp: whatsappVal || undefined,
+      maxMessenger: hasMaxMessenger
     });
   }
 

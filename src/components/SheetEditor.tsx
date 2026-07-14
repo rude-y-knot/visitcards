@@ -42,7 +42,8 @@ export default function SheetEditor({
     address: 'Санкт-Петербург, г. Колпино, ул. Ленина д. 1',
     department: 'Маркетинг',
     telegram: '',
-    whatsapp: ''
+    whatsapp: '',
+    maxMessenger: true
   });
 
   const handleAddRow = (e: React.FormEvent) => {
@@ -73,7 +74,8 @@ export default function SheetEditor({
       address: 'Санкт-Петербург, г. Колпино, ул. Ленина д. 1',
       department: 'Маркетинг',
       telegram: '',
-      whatsapp: ''
+      whatsapp: '',
+      maxMessenger: true
     });
   };
 
@@ -81,7 +83,7 @@ export default function SheetEditor({
     setSheetRows(sheetRows.filter(row => row.id !== id));
   };
 
-  const handleUpdateField = (id: string, field: keyof Employee, value: string) => {
+  const handleUpdateField = (id: string, field: keyof Employee, value: any) => {
     const updated = sheetRows.map(r => {
       if (r.id === id) {
         const item = { ...r, [field]: value };
@@ -206,8 +208,8 @@ export default function SheetEditor({
               </a>
             </div>
             <p>
-              Все изменения в колонках на стороне Google Sheets автоматически синхронизируются и обновляют визитки сотрудников на главной странице раз в 30 секунд. 
-              Колонки в вашей таблице: <strong className="text-gray-300">Имя, Фамилия, Телефон, почта, Должность, Департамент, Сайт компании, Адрес компании</strong>.
+              Все изменения в колонках на стороне Google Sheets автоматически синхронизируются и обновляют визитки сотрудников на главной странице каждый час. 
+              Колонки в вашей таблице: <strong className="text-gray-300">Имя, Фамилия, Телефон, почта, Должность, Департамент, Сайт компании, Адрес компании, МАКС</strong>.
             </p>
           </div>
         </details>
@@ -274,6 +276,7 @@ export default function SheetEditor({
               <th className="px-4 py-3.5 border-r border-gray-800/50">Должность</th>
               <th className="px-4 py-3.5 border-r border-gray-800/50">Сайт компании</th>
               <th className="px-4 py-3.5 border-r border-gray-800/50">Адрес компании</th>
+              <th className="px-4 py-3.5 border-r border-gray-800/50 text-center">МАКС</th>
               <th className="px-4 py-3.5 border-r border-gray-800/50">Отдел</th>
               <th className="px-4 py-3.5 text-center">Действие</th>
             </tr>
@@ -338,6 +341,14 @@ export default function SheetEditor({
                     value={row.address} 
                     onChange={(e) => handleUpdateField(row.id, 'address', e.target.value)}
                     className="bg-transparent border border-transparent hover:border-gray-800 focus:bg-black/60 focus:border-bronze/60 focus:outline-none px-2 py-1 rounded text-white w-60 transition-colors"
+                  />
+                </td>
+                <td className="px-3 py-2 border-r border-gray-800/50 text-center">
+                  <input 
+                    type="checkbox" 
+                    checked={row.maxMessenger !== false}
+                    onChange={(e) => handleUpdateField(row.id, 'maxMessenger', e.target.checked)}
+                    className="w-4 h-4 rounded bg-[#121217] border-gray-800 text-bronze focus:ring-1 focus:ring-bronze cursor-pointer accent-amber-500"
                   />
                 </td>
                 <td className="px-3 py-2 border-r border-gray-800/50 text-center">
@@ -468,8 +479,19 @@ export default function SheetEditor({
               className="w-full bg-[#141419] border border-gray-800 rounded px-3 py-2 text-white focus:outline-none focus:border-bronze focus:ring-1 focus:ring-bronze"
             />
           </div>
+          <div className="flex items-center h-full pt-4">
+            <label className="flex items-center space-x-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={newRow.maxMessenger !== false}
+                onChange={(e) => setNewRow({...newRow, maxMessenger: e.target.checked})}
+                className="w-4 h-4 rounded bg-[#141419] border-gray-800 text-bronze focus:ring-1 focus:ring-bronze cursor-pointer accent-amber-500"
+              />
+              <span className="text-xs text-gray-300 font-medium">Есть мессенджер МАКС</span>
+            </label>
+          </div>
           
-          <div className="md:col-span-2 lg:col-span-3 flex items-end">
+          <div className="md:col-span-2 lg:col-span-2 flex items-end">
             <button
               type="submit"
               className="w-full bg-bronze hover:bg-bronze/90 text-black font-bold py-2 px-4 rounded text-xs transition-all shadow cursor-pointer h-[38px] flex items-center justify-center gap-1.5 active:scale-[0.99]"
