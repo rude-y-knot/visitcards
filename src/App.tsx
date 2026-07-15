@@ -6,9 +6,22 @@ import CardView from './components/CardView';
 import SheetEditor from './components/SheetEditor';
 import PasswordScreen from './components/PasswordScreen';
 import { 
-  Search, RefreshCw, Copy, Download, Eye, Users, ShieldCheck, Database, Check, Phone, Mail, Globe, ExternalLink
+  Search, RefreshCw, Copy, Download, Eye, Users, ShieldCheck, Database, Check, Phone, Mail, Globe, ExternalLink,
+  Palette, Megaphone, Wrench, Award, TrendingUp, Coins, Briefcase
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+
+const getDepartmentIcon = (dept: string) => {
+  const d = dept ? dept.trim().toLowerCase() : '';
+  if (d.includes('дизайн')) return <Palette size={20} className="text-bronze" />;
+  if (d.includes('маркетинг')) return <Megaphone size={20} className="text-bronze" />;
+  if (d.includes('производство')) return <Wrench size={20} className="text-bronze" />;
+  if (d.includes('управление') || d.includes('руководство')) return <Award size={20} className="text-bronze" />;
+  if (d.includes('продажи')) return <TrendingUp size={20} className="text-bronze" />;
+  if (d.includes('кадры') || d.includes('персонал')) return <Users size={20} className="text-bronze" />;
+  if (d.includes('финансы') || d.includes('бухгалтерия')) return <Coins size={20} className="text-bronze" />;
+  return <Briefcase size={20} className="text-bronze" />;
+};
 
 // --- GOOGLE SHEETS & CSV HELPER FUNCTIONS ---
 
@@ -670,7 +683,7 @@ export default function App() {
                 </div>
 
                 {/* Filter and Search Bar */}
-                <div className="bg-[#121217] p-4.5 rounded-xl border border-gray-800 flex flex-col md:flex-row gap-4 justify-between items-center shadow-lg">
+                <div className="bg-[#2A2520] p-4.5 rounded-xl border border-white/5 flex flex-col md:flex-row gap-4 justify-between items-center shadow-lg">
                   <div className="relative w-full md:w-96">
                     <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-gray-500" size={16} />
                     <input
@@ -678,7 +691,7 @@ export default function App() {
                        placeholder="Поиск сотрудника, отдела или должности..."
                        value={searchQuery}
                        onChange={(e) => setSearchQuery(e.target.value)}
-                       className="w-full pl-10 pr-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:border-bronze transition-all font-medium text-sm"
+                       className="w-full pl-10 pr-4 py-2.5 bg-black/20 border border-white/5 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:border-bronze transition-all font-medium text-sm"
                     />
                   </div>
 
@@ -690,8 +703,8 @@ export default function App() {
                         onClick={() => setSelectedDept(dept)}
                         className={`px-4 py-2 text-xs rounded-lg font-bold transition-all cursor-pointer ${
                           selectedDept === dept 
-                            ? 'bg-bronze text-black shadow-md shadow-bronze/15' 
-                            : 'bg-black/30 text-gray-400 border border-gray-800 hover:text-white hover:bg-black/50'
+                            ? 'bg-bronze text-white shadow-md shadow-bronze/15' 
+                            : 'bg-black/20 text-gray-400 border border-white/5 hover:text-white hover:bg-black/50'
                         }`}
                       >
                         {dept}
@@ -706,14 +719,14 @@ export default function App() {
                     {filteredEmployees.map((emp) => (
                       <div 
                         key={emp.id}
-                        className="bg-[#141419] rounded-xl border border-gray-800 hover:border-bronze/50 transition-all duration-300 overflow-hidden flex flex-col group justify-between hover:shadow-xl hover:-translate-y-0.5"
+                        className="bg-[#2A2520] rounded-xl border border-white/5 hover:border-bronze transition-all duration-300 overflow-hidden flex flex-col group justify-between hover:shadow-xl hover:-translate-y-0.5"
                       >
                         <div className="p-6">
                           <div className="flex items-start justify-between">
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-bronze to-amber-950 flex items-center justify-center text-black font-black text-lg shadow-md group-hover:scale-105 transition-transform">
-                              {emp.firstName[0]}{emp.lastName[0]}
+                            <div className="w-12 h-12 rounded-full bg-black/30 flex items-center justify-center text-bronze border border-white/5 shadow-md group-hover:scale-105 transition-transform shrink-0">
+                              {getDepartmentIcon(emp.department)}
                             </div>
-                            <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 bg-black/60 text-gray-400 rounded-md border border-gray-800/80">
+                            <span className="text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 bg-black/20 text-gray-300 rounded-md border border-white/5">
                               {emp.department}
                             </span>
                           </div>
@@ -723,7 +736,7 @@ export default function App() {
                           </h3>
                           <p className="text-gray-400 text-xs font-semibold mt-1.5">{emp.title}</p>
 
-                          <div className="mt-5 space-y-2.5 text-xs text-gray-500 border-t border-gray-850 pt-4">
+                          <div className="mt-5 space-y-2.5 text-xs text-gray-500 border-t border-white/5 pt-4">
                             <div className="flex items-center space-x-2">
                               <Phone size={13} className="text-gray-600" />
                               <span className="text-gray-400 font-mono">{emp.phone}</span>
@@ -742,13 +755,13 @@ export default function App() {
                         </div>
 
                         {/* Interactive triggers */}
-                        <div className="p-4 bg-black/20 border-t border-gray-800/60 flex space-x-2">
+                        <div className="p-4 bg-black/30 border-t border-white/5 flex space-x-2">
                           <button
                             onClick={() => {
                               window.history.pushState(null, '', `?card=${emp.id}`);
                               setStandaloneEmployee(emp);
                             }}
-                            className="flex-1 bg-gray-800 hover:bg-bronze hover:text-black text-white text-xs font-bold py-2 px-3 rounded-lg transition-all text-center flex items-center justify-center gap-1 cursor-pointer active:scale-95"
+                            className="flex-1 bg-black/20 hover:bg-bronze hover:text-white border border-white/5 text-white text-xs font-bold py-2 px-3 rounded-lg transition-all text-center flex items-center justify-center gap-1 cursor-pointer active:scale-95"
                           >
                             <Eye size={13} />
                             <span>Смотреть</span>
@@ -757,7 +770,7 @@ export default function App() {
                           <button
                             onClick={() => copyCardLink(emp)}
                             title="Скопировать ссылку"
-                            className="p-2 bg-black/40 hover:bg-gray-800 text-gray-400 hover:text-white rounded-lg border border-gray-800 transition-all text-xs cursor-pointer active:scale-95"
+                            className="p-2 bg-black/20 hover:bg-white/5 text-gray-400 hover:text-white rounded-lg border border-white/5 transition-all text-xs cursor-pointer active:scale-95"
                           >
                             <Copy size={13} />
                           </button>
@@ -765,7 +778,7 @@ export default function App() {
                           <button
                             onClick={() => downloadVCF(emp)}
                             title="Скачать контакт VCF"
-                            className="p-2 bg-black/40 hover:bg-gray-800 text-gray-400 hover:text-white rounded-lg border border-gray-800 transition-all text-xs cursor-pointer active:scale-95"
+                            className="p-2 bg-black/20 hover:bg-white/5 text-gray-400 hover:text-white rounded-lg border border-white/5 transition-all text-xs cursor-pointer active:scale-95"
                           >
                             <Download size={13} />
                           </button>
@@ -774,7 +787,7 @@ export default function App() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-16 bg-[#121217] rounded-xl border border-gray-800 shadow-inner">
+                  <div className="text-center py-16 bg-[#2A2520] rounded-xl border border-white/5 shadow-inner">
                     <p className="text-gray-400 text-base font-semibold">Сотрудники по выбранным критериям не найдены</p>
                     <p className="text-gray-600 text-xs mt-1">Попробуйте изменить поисковый запрос или сбросить фильтры.</p>
                   </div>

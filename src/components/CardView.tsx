@@ -2,10 +2,23 @@ import React, { useState, useRef } from 'react';
 import { Employee } from '../types';
 import { 
   Phone, Mail, Globe, MapPin, ExternalLink, Download, Copy, Check, Send, 
-  MessageSquare, ShieldCheck, QrCode
+  MessageSquare, ShieldCheck, QrCode, Palette, Megaphone, Wrench, Award, 
+  TrendingUp, Users, Coins, Briefcase
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import QRCode from 'react-qr-code';
+
+const getDepartmentIcon = (dept: string) => {
+  const d = dept ? dept.trim().toLowerCase() : '';
+  if (d.includes('дизайн')) return <Palette size={38} className="text-bronze" />;
+  if (d.includes('маркетинг')) return <Megaphone size={38} className="text-bronze" />;
+  if (d.includes('производство')) return <Wrench size={38} className="text-bronze" />;
+  if (d.includes('управление') || d.includes('руководство')) return <Award size={38} className="text-bronze" />;
+  if (d.includes('продажи')) return <TrendingUp size={38} className="text-bronze" />;
+  if (d.includes('кадры') || d.includes('персонал')) return <Users size={38} className="text-bronze" />;
+  if (d.includes('финансы') || d.includes('бухгалтерия')) return <Coins size={38} className="text-bronze" />;
+  return <Briefcase size={38} className="text-bronze" />;
+};
 
 interface CardViewProps {
   employee: Employee;
@@ -50,7 +63,7 @@ export default function CardView({ employee, onDownloadVCF, onCopyLink, standalo
         initial={{ opacity: 0, scale: 0.96, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-md bg-gradient-to-b from-[#16161c] to-[#0b0b0e] rounded-2xl shadow-2xl border border-gray-800/80 relative overflow-hidden"
+        className="w-full max-w-md bg-[#2A2520] rounded-2xl shadow-2xl border border-white/5 relative overflow-hidden"
         style={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)' }}
       >
         {/* Elite design lines & marble gloss texture simulations */}
@@ -92,10 +105,10 @@ export default function CardView({ employee, onDownloadVCF, onCopyLink, standalo
                     <path fill="white" d="M12106.14 4529.76c-9.52,50.39 -24.41,86.4 -45.01,108.05l296.24 0 0 -400.66 -228.72 0 -4.15 103.54c-2.77,75.67 -8.83,138.69 -18.36,189.07zm442.38 108.05l0 216.25 -100.07 0 0 -124.32 -448.27 0 0 124.32 -100.94 0 0.86 -216.25 25.11 0c36.71,-1.56 62.5,-28.75 77.22,-81.38 14.72,-52.64 23.72,-127.78 27.18,-225.78l6.76 -185.26 428.18 0 0 492.42 83.97 0z"></path>
                     <path fill="white" d="M3706.41 3004.71l625.05 0 -317 -598.72 -308.05 598.72zm-8.78 -968.38l636.16 0 875.96 1593.43 -543.56 0 -151.88 -281.72 -990.4 0 -143.1 281.72 -545.89 0 862.71 -1593.43z"></path>
                     <path fill="white" d="M11045.18 3004.71l625.04 0 -317 -598.72 -308.04 598.72zm-8.78 -968.56l636.15 0 875.97 1593.61 -543.74 0 -151.88 -281.72 -990.4 0 -143.1 281.72 -545.89 0 862.89 -1593.61z"></path>
-                    <path fill="#c49b66" d="M2126.24 648.69l-1043.6 1043.42c-93.49,93.49 -93.49,244.82 0,338.13l169.07 169.07 169.07 169.07 0 -236.95c0,-64.83 25.79,-126.98 71.63,-173.01l1043.42 -1043.41c93.49,-93.49 93.49,-244.83 0,-338.14l-169.07 -169.07 -169.06 -169.06 0 236.94c0,64.83 -25.61,126.98 -71.46,173.01z"></path>
-                    <path fill="#c49b66" d="M1350.75 409.77l-1043.42 1043.42c-93.49,93.49 -93.49,244.83 0,338.14l169.07 169.06 169.07 168.18 0 -236.95c0,-63.94 25.79,-126.08 71.63,-171.93l1043.42 -1043.42c93.49,-93.49 93.49,-244.83 0,-338.14l-169.07 -169.06 -169.06 -169.07 0 236.95c0,64.83 -25.79,126.97 -71.64,172.82z"></path>
+                    <path fill="#D12421" d="M2126.24 648.69l-1043.6 1043.42c-93.49,93.49 -93.49,244.82 0,338.13l169.07 169.07 169.07 169.07 0 -236.95c0,-64.83 25.79,-126.98 71.63,-173.01l1043.42 -1043.41c93.49,-93.49 93.49,-244.83 0,-338.14l-169.07 -169.07 -169.06 -169.06 0 236.94c0,64.83 -25.61,126.98 -71.46,173.01z"></path>
+                    <path fill="#D12421" d="M1350.75 409.77l-1043.42 1043.42c-93.49,93.49 -93.49,244.83 0,338.14l169.07 169.06 169.07 168.18 0 -236.95c0,-63.94 25.79,-126.08 71.63,-171.93l1043.42 -1043.42c93.49,-93.49 93.49,-244.83 0,-338.14l-169.07 -169.06 -169.06 -169.07 0 236.95c0,64.83 -25.79,126.97 -71.64,172.82z"></path>
                     <polygon fill="white" points="7338.77,2036.33 8089.18,2036.33 8641.7,3061.84 9194.03,2036.33 9944.63,2036.15 9944.63,3629.76 9469.12,3629.76 9469.12,2485.33 9464.83,2485.33 8824.38,3629.76 8459.02,3629.76 7818.57,2485.33 7814.09,2485.33 7814.09,3629.76 7338.59,3629.76 7338.59,2036.33 "></polygon>
-                    <polygon fill="#c49b66" points="1303.11,3395.14 714.42,3132.94 714.42,3629.76 1891.44,3629.76 1891.44,3132.94 "></polygon>
+                    <polygon fill="#D12421" points="1303.11,3395.14 714.42,3132.94 714.42,3629.76 1891.44,3629.76 1891.44,3132.94 "></polygon>
                     <polygon fill="white" points="1303.11,2584.62 -0,2006.68 -0,3629.76 475.5,3629.76 475.5,2734.17 1303.11,3106.69 2130.54,2734.17 2130.54,3629.76 2606.04,3629.76 2606.04,2006.5 "></polygon>
                     <polygon fill="white" points="5438.63,3629.76 5914.13,3629.76 5914.13,2419.59 7112.48,2419.46 7109.71,2036.21 5438.63,2036.21 "></polygon>
                   </g>
@@ -106,11 +119,11 @@ export default function CardView({ employee, onDownloadVCF, onCopyLink, standalo
 
             {/* Avatar & Verification Indicator */}
             <div className="flex flex-col items-center text-center">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-bronze via-gray-800 to-gray-900 p-1 shadow-2xl mb-4 relative">
-                <div className="w-full h-full rounded-full bg-[#141419] flex items-center justify-center text-white font-extrabold text-2xl border border-gray-800">
-                  {employee.firstName[0]}{employee.lastName[0]}
+              <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-bronze via-white/10 to-white/5 p-1 shadow-2xl mb-4 relative">
+                <div className="w-full h-full rounded-full bg-black/35 flex items-center justify-center text-white border border-white/5">
+                  {getDepartmentIcon(employee.department)}
                 </div>
-                <div className="absolute bottom-0.5 right-0.5 bg-bronze text-black p-1 rounded-full border-2 border-[#0f0f13] shadow-lg flex items-center justify-center">
+                <div className="absolute bottom-0.5 right-0.5 bg-bronze text-white p-1 rounded-full border-2 border-[#2A2520] shadow-lg flex items-center justify-center">
                   <ShieldCheck size={14} />
                 </div>
               </div>
@@ -133,14 +146,14 @@ export default function CardView({ employee, onDownloadVCF, onCopyLink, standalo
               <div className="grid grid-cols-2 gap-3">
                 <a 
                   href={`tel:${employee.phone}`}
-                  className="flex items-center justify-center space-x-2 py-3 bg-[#181822] hover:bg-gray-800 text-gray-200 hover:text-white rounded-xl border border-gray-800/80 transition-all text-sm font-medium shadow-sm hover:shadow-md cursor-pointer active:scale-95"
+                  className="flex items-center justify-center space-x-2 py-3 bg-black/20 hover:bg-white/5 text-gray-200 hover:text-white rounded-xl border border-white/5 transition-all text-sm font-medium shadow-sm hover:shadow-md cursor-pointer active:scale-95"
                 >
                   <Phone size={16} className="text-gray-400" />
                   <span>Позвонить</span>
                 </a>
                 <a 
                   href={`mailto:${employee.email}`}
-                  className="flex items-center justify-center space-x-2 py-3 bg-[#181822] hover:bg-gray-800 text-gray-200 hover:text-white rounded-xl border border-gray-800/80 transition-all text-sm font-medium shadow-sm hover:shadow-md cursor-pointer active:scale-95"
+                  className="flex items-center justify-center space-x-2 py-3 bg-black/20 hover:bg-white/5 text-gray-200 hover:text-white rounded-xl border border-white/5 transition-all text-sm font-medium shadow-sm hover:shadow-md cursor-pointer active:scale-95"
                 >
                   <Mail size={16} className="text-gray-400" />
                   <span>Написать</span>
@@ -154,7 +167,7 @@ export default function CardView({ employee, onDownloadVCF, onCopyLink, standalo
                     href={`https://t.me/${employee.telegram}`} 
                     target="_blank" 
                     rel="noreferrer"
-                    className="flex items-center justify-between px-4 py-3 bg-[#111119] hover:bg-sky-950/20 rounded-xl border border-sky-900/20 text-sky-400 hover:text-sky-300 transition-all text-xs"
+                    className="flex items-center justify-between px-4 py-3 bg-black/20 hover:bg-white/5 rounded-xl border border-sky-900/20 text-sky-400 hover:text-sky-300 transition-all text-xs"
                   >
                     <span className="flex items-center space-x-2.5">
                       <Send size={14} className="transform rotate-[-30deg]" />
@@ -169,7 +182,7 @@ export default function CardView({ employee, onDownloadVCF, onCopyLink, standalo
                     href={`https://wa.me/${employee.whatsapp}`} 
                     target="_blank" 
                     rel="noreferrer"
-                    className="flex items-center justify-between px-4 py-3 bg-[#111119] hover:bg-green-950/20 rounded-xl border border-green-900/20 text-green-400 hover:text-green-300 transition-all text-xs"
+                    className="flex items-center justify-between px-4 py-3 bg-black/20 hover:bg-white/5 rounded-xl border border-green-900/20 text-green-400 hover:text-green-300 transition-all text-xs"
                   >
                     <span className="flex items-center space-x-2.5">
                       <MessageSquare size={14} />
@@ -180,7 +193,7 @@ export default function CardView({ employee, onDownloadVCF, onCopyLink, standalo
                 )}
 
                 {employee.phone && employee.maxMessenger !== false && (
-                  <div className="flex items-center justify-between px-4 py-3 bg-[#111119] rounded-xl border border-amber-950/20 text-amber-400 text-xs select-none">
+                  <div className="flex items-center justify-between px-4 py-3 bg-black/20 rounded-xl border border-white/5 text-amber-400 text-xs select-none">
                     <span className="flex items-center space-x-2.5">
                       <MessageSquare size={14} className="text-amber-400" />
                       <span className="font-medium text-gray-300">Мессенджер Макс</span>
@@ -193,7 +206,7 @@ export default function CardView({ employee, onDownloadVCF, onCopyLink, standalo
               </div>
 
               {/* Physical Details / Company Coordinates */}
-              <div className="bg-[#121217] p-4 rounded-xl border border-gray-800/80 text-xs space-y-3 shadow-inner">
+              <div className="bg-black/20 p-4 rounded-xl border border-white/5 text-xs space-y-3 shadow-inner">
                 {employee.website && (
                   <div className="flex items-center gap-2 text-gray-300">
                     <span className="text-gray-500 flex items-center gap-1.5 shrink-0">
@@ -236,7 +249,7 @@ export default function CardView({ employee, onDownloadVCF, onCopyLink, standalo
           <div className="mt-8 space-y-3">
             <button
               onClick={() => onDownloadVCF(employee)}
-              className="w-full bg-bronze hover:bg-bronze/90 text-black py-3.5 px-4 rounded-xl font-bold text-sm tracking-wide shadow-lg shadow-bronze/20 hover:shadow-bronze/30 transition-all flex items-center justify-center space-x-2 cursor-pointer active:scale-[0.98]"
+              className="w-full bg-bronze hover:bg-bronze/90 text-white py-3.5 px-4 rounded-xl font-bold text-sm tracking-wide shadow-lg shadow-bronze/20 hover:shadow-bronze/30 transition-all flex items-center justify-center space-x-2 cursor-pointer active:scale-[0.98]"
             >
               <Download size={16} />
               <span>Сохранить контакт (VCF)</span>
@@ -276,7 +289,7 @@ export default function CardView({ employee, onDownloadVCF, onCopyLink, standalo
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="bg-[#121217] p-5 rounded-xl border border-gray-800/80 flex flex-col items-center space-y-4 shadow-inner overflow-hidden"
+                  className="bg-black/20 p-5 rounded-xl border border-white/5 flex flex-col items-center space-y-4 shadow-inner overflow-hidden"
                 >
                   <div ref={qrContainerRef} className="p-3 bg-white rounded-lg inline-block shadow-lg">
                     <QRCode

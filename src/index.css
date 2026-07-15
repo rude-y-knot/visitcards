@@ -5,15 +5,15 @@
   --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
   --font-display: "IBM Plex Sans", sans-serif;
-  --color-bg: #0a0a0a;
-  --color-dark: #141414;
-  --color-bronze: #c49b66;
-  --color-magma-accent: #c49b66;
+  --color-bg: #0D0D0D;
+  --color-dark: #2A2520;
+  --color-bronze: #D12421;
+  --color-magma-accent: #D12421;
 }
 
 @layer base {
   body {
-    background-color: #0a0a0a;
+    background-color: #0D0D0D;
     font-family: "IBM Plex Sans", sans-serif;
     color: #ffffff;
     -webkit-font-smoothing: antialiased;
@@ -36,20 +36,20 @@
 
 .glass-card {
   border: 1px solid rgba(255, 255, 255, 0.05);
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: #2A2520;
   backdrop-filter: blur(8px);
 }
 
 .text-bronze {
-  color: #c49b66;
+  color: #D12421;
 }
 
 .bg-bronze {
-  background-color: #c49b66;
+  background-color: #D12421;
 }
 
 .border-bronze {
-  border-color: #c49b66;
+  border-color: #D12421;
 }
 
 /* Custom premium scrollbar */
@@ -68,5 +68,5 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #c49b66;
+  background: #D12421;
 }
