@@ -27,8 +27,10 @@ jobs:
       - name: Install dependencies
         run: npm ci || npm install
 
-      - name: Build production bundle
-        run: npm run build
+      - name: Build frontend & server bundles
+        run: |
+          npm run build
+          npm run build:server
 
       - name: Check VPS SSH secrets
         id: check_secrets
@@ -44,7 +46,12 @@ jobs:
             echo "configured=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Deploy dist/ to Beget VPS (atomic swap)
+      - name: Package release archive
+        if: steps.check_secrets.outputs.configured == 'true'
+        run: |
+          tar -czf release.tar.gz dist dist-server package.json package-lock.json
+
+      - name: Deploy release to Beget VPS
         if: steps.check_secrets.outputs.configured == 'true'
         env:
           BEGET_HOST: ${{ secrets.BEGET_HOST }}
@@ -59,23 +66,48 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           ssh-keyscan -p "$PORT" -H "$BEGET_HOST" >> ~/.ssh/known_hosts 2>/dev/null
 
-          # Pack dist/ and atomically replace /var/www/contact.magmahome.ru/dist on VPS
-          tar -C dist -czf - . | ssh -i ~/.ssh/deploy_key -p "$PORT" -o StrictHostKeyChecking=yes "${BEGET_USERNAME}@${BEGET_HOST}" '
+          ssh -i ~/.ssh/deploy_key -p "$PORT" -o StrictHostKeyChecking=yes "${BEGET_USERNAME}@${BEGET_HOST}" \
+            "mkdir -p /var/www/contact.magmahome.ru"
+
+          scp -i ~/.ssh/deploy_key -P "$PORT" -o StrictHostKeyChecking=yes \
+            release.tar.gz "${BEGET_USERNAME}@${BEGET_HOST}:/var/www/contact.magmahome.ru/release.tar.gz"
+
+          ssh -i ~/.ssh/deploy_key -p "$PORT" -o StrictHostKeyChecking=yes "${BEGET_USERNAME}@${BEGET_HOST}" '
             set -euo pipefail
-            TARGET_DIR="/var/www/contact.magmahome.ru"
-            TMP_DIR="${TARGET_DIR}/dist_new"
-            OLD_DIR="${TARGET_DIR}/dist_old"
+            APP_DIR="/var/www/contact.magmahome.ru"
+            STAGE_DIR="${APP_DIR}/release_stage"
 
-            mkdir -p "${TARGET_DIR}"
-            rm -rf "${TMP_DIR}" "${OLD_DIR}"
-            mkdir -p "${TMP_DIR}"
-            tar -xzf - -C "${TMP_DIR}"
-            chmod 755 /var/www "${TARGET_DIR}"
-            chmod -R a+rX "${TMP_DIR}"
+            rm -rf "${STAGE_DIR}"
+            mkdir -p "${STAGE_DIR}"
+            tar -xzf "${APP_DIR}/release.tar.gz" -C "${STAGE_DIR}"
+            rm -f "${APP_DIR}/release.tar.gz"
 
-            if [ -d "${TARGET_DIR}/dist" ]; then
-              mv "${TARGET_DIR}/dist" "${OLD_DIR}"
+            cp -f "${STAGE_DIR}/package.json" "${APP_DIR}/package.json"
+            cp -f "${STAGE_DIR}/package-lock.json" "${APP_DIR}/package-lock.json"
+
+            NEW_SHA=$(sha256sum "${APP_DIR}/package-lock.json" | awk "{print \$1}")
+            OLD_SHA=$(cat "${APP_DIR}/.lock_sha256" 2>/dev/null || echo "")
+
+            if [ "${NEW_SHA}" != "${OLD_SHA}" ] || [ ! -d "${APP_DIR}/node_modules" ]; then
+              echo "==> Dependencies changed or node_modules missing — running npm ci --omit=dev..."
+              (cd "${APP_DIR}" && npm ci --omit=dev)
+              echo "${NEW_SHA}" > "${APP_DIR}/.lock_sha256"
+            else
+              echo "==> package-lock.json unchanged — skipping npm ci."
             fi
-            mv "${TMP_DIR}" "${TARGET_DIR}/dist"
-            rm -rf "${OLD_DIR}"
+
+            chmod 755 /var/www "${APP_DIR}"
+            chmod -R a+rX "${STAGE_DIR}/dist"
+
+            rm -rf "${APP_DIR}/dist_old" "${APP_DIR}/dist-server_old"
+            if [ -d "${APP_DIR}/dist" ]; then mv "${APP_DIR}/dist" "${APP_DIR}/dist_old"; fi
+            if [ -d "${APP_DIR}/dist-server" ]; then mv "${APP_DIR}/dist-server" "${APP_DIR}/dist-server_old"; fi
+
+            mv "${STAGE_DIR}/dist" "${APP_DIR}/dist"
+            mv "${STAGE_DIR}/dist-server" "${APP_DIR}/dist-server"
+            rm -rf "${STAGE_DIR}" "${APP_DIR}/dist_old" "${APP_DIR}/dist-server_old"
+
+            if systemctl is-enabled --quiet contact-magmahome-api.service 2>/dev/null; then
+              systemctl restart contact-magmahome-api.service
+            fi
           '

@@ -1,153 +1,204 @@
-import React, { useState } from 'react';
-import { Lock, Eye, EyeOff, ShieldCheck, ArrowRight, ShieldAlert } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Lock, Eye, EyeOff, ArrowRight, ShieldAlert, KeyRound } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { api } from '../services/api';
+import Logo from './Logo';
 
 interface PasswordScreenProps {
   onSuccess: () => void;
 }
 
 export default function PasswordScreen({ onSuccess }: PasswordScreenProps) {
+  const [needsSetup, setNeedsSetup] = useState<boolean>(false);
+  const [checkingStatus, setCheckingStatus] = useState<boolean>(true);
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const sha256 = async (text: string): Promise<string> => {
-    const msgBuffer = new TextEncoder().encode(text);
-    const hashBuffer = await window.crypto.subtle.digest('SHA-256', msgBuffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  };
+  useEffect(() => {
+    let active = true;
+    api
+      .getAuthStatus()
+      .then((status) => {
+        if (!active) return;
+        if (status.authenticated) {
+          onSuccess();
+          return;
+        }
+        setNeedsSetup(status.needsSetup);
+      })
+      .catch(() => {
+        if (active) {
+          setErrorMessage('Не удалось связаться с сервером авторизации.');
+        }
+      })
+      .finally(() => {
+        if (active) setCheckingStatus(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [onSuccess]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError(false);
+    setErrorMessage(null);
 
-    try {
-      const enteredHash = await sha256(password);
-      // SHA-256 hash of "Magma14$"
-      const targetHash = '94875e3a4a35fcaea1134efa5d4c05d7ea359712ef641a8ac0568037fa0f3b5b';
-
-      if (enteredHash === targetHash) {
-        setTimeout(() => {
-          setIsLoading(false);
-          sessionStorage.setItem('magma_auth', 'true');
-          onSuccess();
-        }, 800);
-      } else {
-        setIsLoading(false);
-        setError(true);
-        setPassword('');
-        // Vibrate if supported
-        if ('vibrate' in navigator) {
-          navigator.vibrate(100);
-        }
+    if (needsSetup) {
+      if (password.length < 6) {
+        setErrorMessage('Пароль должен содержать минимум 6 символов.');
+        return;
       }
+      if (password !== confirmPassword) {
+        setErrorMessage('Пароли не совпадают.');
+        return;
+      }
+    }
+
+    setIsLoading(true);
+    try {
+      if (needsSetup) {
+        await api.setupPassword(password);
+      } else {
+        await api.login(password);
+      }
+      setPassword('');
+      setConfirmPassword('');
+      onSuccess();
     } catch (err) {
-      console.error('Password hashing failed:', err);
+      const msg = err instanceof Error ? err.message : 'Ошибка входа';
+      setErrorMessage(msg);
+      if (!needsSetup) setPassword('');
+    } finally {
       setIsLoading(false);
-      setError(true);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#070709] flex items-center justify-center p-4 sm:p-6 relative overflow-hidden antialiased selection:bg-bronze/30">
-      {/* Deep luxurious background glow with natural elements */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-bronze/8 rounded-full blur-[120px] pointer-events-none"></div>
-      
-      <div className="absolute top-12 left-1/2 -translate-x-1/2 text-gray-600 font-mono text-[10px] tracking-widest uppercase opacity-40 pointer-events-none">
-        Magma Home Secure Access
-      </div>
+    <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center p-4 sm:p-6 relative overflow-hidden antialiased selection:bg-bronze/30">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] h-[520px] bg-bronze/8 rounded-full blur-[130px] pointer-events-none" />
 
       <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.98 }}
+        initial={{ opacity: 0, y: 18, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-md bg-[#0f0f14] rounded-2xl shadow-2xl border border-gray-800/80 p-6 sm:p-8 relative overflow-hidden"
+        transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-md bg-[#2A2520] rounded-2xl shadow-2xl border border-white/10 p-6 sm:p-8 relative overflow-hidden"
       >
-        <div className="absolute top-0 left-0 w-full h-[3px] bg-gradient-to-r from-transparent via-bronze to-transparent"></div>
-        
-        {/* Header Icon & Branding */}
-        <div className="flex flex-col items-center text-center mb-8">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-bronze to-gray-800 p-[1px] flex items-center justify-center shadow-lg mb-4 relative">
-            <div className="w-full h-full rounded-full bg-[#141419] flex items-center justify-center text-white">
-              <Lock size={20} className="text-bronze" />
-            </div>
+        <div className="flex flex-col items-center text-center mb-7">
+          <div className="mb-5">
+            <Logo variant="on-dark" className="h-7 w-auto" />
           </div>
-          
-          <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight leading-snug">
-            Вход в Панель Управления
+
+          <div className="w-12 h-12 rounded-full bg-black/30 border border-white/10 flex items-center justify-center mb-4">
+            {needsSetup ? (
+              <KeyRound size={20} className="text-bronze" />
+            ) : (
+              <Lock size={20} className="text-bronze" />
+            )}
+          </div>
+
+          <h2 className="text-xl font-bold text-white tracking-tight normal-case">
+            {needsSetup ? 'Первичная настройка пароля' : 'Вход в панель управления'}
           </h2>
-          <p className="text-gray-400 mt-2 text-xs sm:text-sm">
-            Общий список сотрудников и редактирование данных защищены. Пожалуйста, введите пароль.
+          <p className="text-gray-400 mt-2 text-sm leading-relaxed">
+            {needsSetup
+              ? 'Задайте пароль администратора для защиты базы визиток и конструктора PDF.'
+              : 'Каталог сотрудников, база данных SQLite и конструктор печатных визиток защищены.'}
           </p>
         </div>
 
-        {/* Input Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1">
-            <label className="text-gray-400 text-xs font-mono tracking-wider uppercase pl-1 block">
-              Пароль Доступа
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  if (error) setError(false);
-                }}
-                disabled={isLoading}
-                placeholder="Введите пароль..."
-                className={`w-full bg-[#141419] text-white border ${
-                  error ? 'border-amber-700 focus:ring-amber-700' : 'border-gray-800 focus:ring-gray-700'
-                } rounded-xl py-3 px-4 text-sm focus:outline-none focus:ring-1 transition-all pr-12`}
-                autoFocus
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors cursor-pointer"
-              >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
+        {checkingStatus ? (
+          <div className="py-8 flex flex-col items-center justify-center gap-3 text-sm text-gray-400">
+            <div className="w-6 h-6 border-2 border-white/20 border-t-bronze rounded-full animate-spin" />
+            <span>Проверка сессии...</span>
           </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="text-gray-300 text-xs font-medium block">
+                {needsSetup ? 'Новый пароль администратора' : 'Пароль доступа'}
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    if (errorMessage) setErrorMessage(null);
+                  }}
+                  disabled={isLoading}
+                  placeholder={needsSetup ? 'Минимум 6 символов' : 'Введите пароль...'}
+                  autoComplete={needsSetup ? 'new-password' : 'current-password'}
+                  className={`w-full bg-black/30 text-white border ${
+                    errorMessage
+                      ? 'border-amber-600 focus:border-amber-500'
+                      : 'border-white/10 focus:border-bronze'
+                  } rounded-xl py-3 px-4 text-sm focus:outline-none transition-colors pr-12`}
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? 'Скрыть пароль' : 'Показать пароль'}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
 
-          {/* Feedback/Errors */}
-          <AnimatePresence mode="wait">
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
-                className="flex items-center gap-2 text-amber-500 bg-amber-950/10 px-3.5 py-2.5 rounded-lg border border-amber-800/20"
-              >
-                <ShieldAlert size={14} className="flex-shrink-0" />
-                <span>Неверный пароль. Пожалуйста, попробуйте еще раз.</span>
-              </motion.div>
+            {needsSetup && (
+              <div className="space-y-1.5">
+                <label className="text-gray-300 text-xs font-medium block">
+                  Подтверждение пароля
+                </label>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    if (errorMessage) setErrorMessage(null);
+                  }}
+                  disabled={isLoading}
+                  placeholder="Повторите пароль..."
+                  autoComplete="new-password"
+                  className="w-full bg-black/30 text-white border border-white/10 focus:border-bronze rounded-xl py-3 px-4 text-sm focus:outline-none transition-colors"
+                />
+              </div>
             )}
-          </AnimatePresence>
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isLoading || !password}
-            className="w-full bg-bronze hover:bg-bronze/90 disabled:bg-gray-800 disabled:text-gray-500 disabled:cursor-not-allowed text-black font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer relative overflow-hidden"
-          >
-            {isLoading ? (
-              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-            ) : (
-              <>
-                <span>Подтвердить</span>
-                <ArrowRight size={15} />
-              </>
-            )}
-          </button>
-        </form>
+            <AnimatePresence mode="wait">
+              {errorMessage && (
+                <motion.div
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -4 }}
+                  className="flex items-start gap-2.5 text-amber-300 bg-amber-950/30 px-3.5 py-2.5 rounded-xl border border-amber-700/40 text-xs"
+                >
+                  <ShieldAlert size={15} className="shrink-0 mt-0.5" />
+                  <span>{errorMessage}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-
+            <button
+              type="submit"
+              disabled={isLoading || !password || (needsSetup && !confirmPassword)}
+              className="w-full bg-bronze hover:bg-bronze/90 disabled:bg-white/10 disabled:text-gray-500 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer text-sm"
+            >
+              {isLoading ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  <span>{needsSetup ? 'Сохранить пароль и войти' : 'Войти'}</span>
+                  <ArrowRight size={15} />
+                </>
+              )}
+            </button>
+          </form>
+        )}
       </motion.div>
     </div>
   );
